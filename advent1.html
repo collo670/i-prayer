@@ -9,7 +9,6 @@
   <style>
     body{
         background-color: #1f2937;
-        
     }
     canvas {
       width: 100% !important;
@@ -22,132 +21,110 @@
         font-size: xx-large;
     }
   </style>
-</head>
-    <body data-src="assets/pdfs/advent 1.pdf">
-        <nav class="fixed top-0 left-0 right-0 bg-[#202847] shadow z-50">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <div class="text-lg font-semibold text-white">ADVENT WEEK 1</div>
-                <div class="space-x-4">
-                <a href="#" class="text-gray-300 hover:text-white">Home</a>
-                <a href="#" class="text-gray-300 hover:text-white">Week 2</a>
-              <a href="#" class="text-gray-300 hover:text-white"></a>
-            </div>
-        </div>
-        </nav>
+        </head>
+                <body data-src="assets/pdfs/advent 1.pdf">
+                        <nav class="fixed top-0 left-0 right-0 bg-[#202847] shadow z-50">
+                            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                                <div class="text-lg font-semibold text-white">ADVENT WEEK 1</div>
+                                <div class="space-x-4">
+                                    <a href="#" class="text-gray-300 hover:text-white">Home</a>
+                                    <a href="#" class="text-gray-300 hover:text-white">Week 2</a>
+                                    <a href="#" class="text-gray-300 hover:text-white"></a>
+                                </div>
+                            </div>
+                        </nav>
 
-    <br><br><br>
-            <div class="mb-4 text-center">
-             <div class="inline-flex flex-wrap justify-center gap-2">
-                <button id="prevPage" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Previous</button>
-                <button id="nextPage" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Next</button>
-                <button id="zoomIn" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Zoom In</button>
-                <button id="zoomOut" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Zoom Out</button>
-            </div>
-            </div>
+                        <br><br><br>
+                        <div class="mb-4 text-center">
+                            <div class="inline-flex flex-wrap justify-center gap-2">
+                                <button id="prevPage" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Previous</button>
+                                <button id="nextPage" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Next</button>
+                                <button id="zoomIn" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Zoom In</button>
+                                <button id="zoomOut" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Zoom Out</button>
+                            </div>
+                        </div>
 
+                        <canvas id="pdfCanvas" class="border rounded shadow w-full max-w-4xl"></canvas>
 
-            <canvas id="pdfCanvas" class="border rounded shadow w-full max-w-4xl"></canvas>
+                        <div class="text-sm mt-2 text-center">
+                            Page <span id="pageNum">1</span> of <span id="pageCount">--</span>
+                        </div>
+                    <script>
+                        // BUG: viewer was undefined, url should be from body[data-src]
+                        const url = document.body.getAttribute('data-src');
 
-            <div class="text-sm mt-2 text-center">
-                Page <span id="pageNum">1</span> of <span id="pageCount">--</span>
-            </div>
+                        let pdfDoc = null;
+                        let pageNum = 1;
+                        let currentScale = 1.5;
 
-    <script>
-                const url = document.body.getAttribute('data-src');
-                const canvas = document.getElementById('pdfCanvas');
-                const ctx = canvas.getContext('2d');
-                let pdfDoc = null;
-                let pageNum = 1;
-                let zoomLevel = 1; // 1 = 100%, 2 = 200%, etc.
+                        const canvas = document.getElementById('pdfCanvas');
+                        const ctx = canvas.getContext('2d');
 
+                        function renderPage(num) {
+                            pdfDoc.getPage(num).then((page) => {
+                                const viewport = page.getViewport({ scale: currentScale });
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
 
-            function renderPage(num) {
-                pdfDoc.getPage(num).then(page => {
-                const containerWidth = canvas.parentElement.clientWidth;
-                const baseScale = containerWidth / page.getViewport({ scale: 1 }).width;
-                const effectiveScale = baseScale * zoomLevel;
+                                page.render({ canvasContext: ctx, viewport });
+                                document.getElementById('pageNum').textContent = num;
 
-                const viewport = page.getViewport({ scale: effectiveScale });
-                const outputScale = window.devicePixelRatio || 1;
+                                // Save last viewed page
+                                localStorage.setItem(`lastPage_${url}`, num);
+                            });
+                        }
 
-                canvas.width = viewport.width * outputScale;
-                canvas.height = viewport.height * outputScale;
-                canvas.style.width = `${viewport.width}px`;
-                canvas.style.height = `${viewport.height}px`;
+                        document.getElementById('prevPage').addEventListener('click', () => {
+                            if (pageNum <= 1) return;
+                            pageNum--;
+                            renderPage(pageNum);
+                        });
 
-                const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+                        document.getElementById('nextPage').addEventListener('click', () => {
+                            if (pageNum >= pdfDoc.numPages) return;
+                            pageNum++;
+                            renderPage(pageNum);
+                        });
 
-                page.render({
-                canvasContext: ctx,
-                viewport,
-                transform
-                });
+                        document.getElementById('zoomIn').addEventListener('click', () => {
+                            currentScale *= 1.2;
+                            renderPage(pageNum);
+                        });
 
-                document.getElementById('pageNum').textContent = num;
-            });
-            }
+                        document.getElementById('zoomOut').addEventListener('click', () => {
+                            currentScale /= 1.2;
+                            renderPage(pageNum);
+                        });
 
-            canvas.addEventListener('click', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'ArrowRight') document.getElementById('nextPage').click();
+                            if (e.key === 'ArrowLeft') document.getElementById('prevPage').click();
+                        });
 
-                if (x < canvas.width / 2) {
-                    // Left half = previous page
-                    if (pageNum > 1) {
-                    pageNum--;
-                    renderPage(pageNum);
-                    }
-                } else {
-                    // Right half = next page
-                    if (pageNum < pdfDoc.numPages) {
-                    pageNum++;
-                    renderPage(pageNum);
-                    }
-                }
-                });
+                        canvas.addEventListener('click', (e) => {
+                            const rect = canvas.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            // Use canvas.style.width for correct click region
+                            const displayWidth = canvas.offsetWidth;
+                            const clickX = e.clientX - rect.left;
+                            if (clickX < displayWidth / 2 && pageNum > 1) {
+                                pageNum--;
+                                renderPage(pageNum);
+                            } else if (clickX >= displayWidth / 2 && pageNum < pdfDoc.numPages) {
+                                pageNum++;
+                                renderPage(pageNum);
+                            }
+                        });
 
-                function loadPDF() {
-                pdfjsLib.getDocument(url).promise.then(pdf => {
-                    pdfDoc = pdf;
-                    document.getElementById('pageCount').textContent = pdf.numPages;
-                    renderPage(pageNum);
-                }).catch(err => {
-                    alert("Failed to load PDF: " + err.message);
-                });
-                }
+                        pdfjsLib.getDocument(url).promise.then((pdf) => {
+                            pdfDoc = pdf;
+                            document.getElementById('pageCount').textContent = pdf.numPages;
 
-                document.getElementById('prevPage').addEventListener('click', () => {
-                if (pageNum > 1) {
-                    pageNum--;
-                    renderPage(pageNum);
-                }
-                });
-
-                document.getElementById('nextPage').addEventListener('click', () => {
-                if (pageNum < pdfDoc.numPages) {
-                    pageNum++;
-                    renderPage(pageNum);
-                }
-                });
-
-                // Keyboard navigation
-                document.addEventListener('keydown', e => {
-                if (e.key === 'ArrowRight') document.getElementById('nextPage').click();
-                if (e.key === 'ArrowLeft') document.getElementById('prevPage').click();
-                });
-
-                window.addEventListener('resize', () => renderPage(pageNum)); // Re-render on resize
-                loadPDF();
-
-                document.getElementById('zoomIn').addEventListener('click', () => {
-                zoomLevel *= 1.2;
-                renderPage(pageNum);
-            });
-
-                    document.getElementById('zoomOut').addEventListener('click', () => {
-                    zoomLevel /= 1.2;
-                    renderPage(pageNum);
-                    });
-            </script>
-        </body>
-    </html>
+                            // Restore last page if available
+                            const savedPage = parseInt(localStorage.getItem(`lastPage_${url}`), 10);
+                            pageNum = savedPage && savedPage >= 1 && savedPage <= pdf.numPages ? savedPage : 1;
+                            renderPage(pageNum);
+                        });
+                    </script>
+                </body>
+            </html>

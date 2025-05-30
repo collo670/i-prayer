@@ -52,101 +52,81 @@
             </div>
 
     <script>
-                const url = document.body.getAttribute('data-src');
-                const canvas = document.getElementById('pdfCanvas');
-                const ctx = canvas.getContext('2d');
-                let pdfDoc = null;
-                let pageNum = 1;
-                let zoomLevel = 1; // 1 = 100%, 2 = 200%, etc.
+                        // BUG: viewer was undefined, url should be from body[data-src]
+                        const url = document.body.getAttribute('data-src');
 
+                        let pdfDoc = null;
+                        let pageNum = 1;
+                        let currentScale = 1.5;
 
-            function renderPage(num) {
-                pdfDoc.getPage(num).then(page => {
-                const containerWidth = canvas.parentElement.clientWidth;
-                const baseScale = containerWidth / page.getViewport({ scale: 1 }).width;
-                const effectiveScale = baseScale * zoomLevel;
+                        const canvas = document.getElementById('pdfCanvas');
+                        const ctx = canvas.getContext('2d');
 
-                const viewport = page.getViewport({ scale: effectiveScale });
-                const outputScale = window.devicePixelRatio || 1;
+                        function renderPage(num) {
+                            pdfDoc.getPage(num).then((page) => {
+                                const viewport = page.getViewport({ scale: currentScale });
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
 
-                canvas.width = viewport.width * outputScale;
-                canvas.height = viewport.height * outputScale;
-                canvas.style.width = `${viewport.width}px`;
-                canvas.style.height = `${viewport.height}px`;
+                                page.render({ canvasContext: ctx, viewport });
+                                document.getElementById('pageNum').textContent = num;
 
-                const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+                                // Save last viewed page
+                                localStorage.setItem(`lastPage_${url}`, num);
+                            });
+                        }
 
-                page.render({
-                canvasContext: ctx,
-                viewport,
-                transform
-                });
+                        document.getElementById('prevPage').addEventListener('click', () => {
+                            if (pageNum <= 1) return;
+                            pageNum--;
+                            renderPage(pageNum);
+                        });
 
-                document.getElementById('pageNum').textContent = num;
-            });
-            }
+                        document.getElementById('nextPage').addEventListener('click', () => {
+                            if (pageNum >= pdfDoc.numPages) return;
+                            pageNum++;
+                            renderPage(pageNum);
+                        });
 
-            canvas.addEventListener('click', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
+                        document.getElementById('zoomIn').addEventListener('click', () => {
+                            currentScale *= 1.2;
+                            renderPage(pageNum);
+                        });
 
-                if (x < canvas.width / 2) {
-                    // Left half = previous page
-                    if (pageNum > 1) {
-                    pageNum--;
-                    renderPage(pageNum);
-                    }
-                } else {
-                    // Right half = next page
-                    if (pageNum < pdfDoc.numPages) {
-                    pageNum++;
-                    renderPage(pageNum);
-                    }
-                }
-                });
+                        document.getElementById('zoomOut').addEventListener('click', () => {
+                            currentScale /= 1.2;
+                            renderPage(pageNum);
+                        });
 
-                function loadPDF() {
-                pdfjsLib.getDocument(url).promise.then(pdf => {
-                    pdfDoc = pdf;
-                    document.getElementById('pageCount').textContent = pdf.numPages;
-                    renderPage(pageNum);
-                }).catch(err => {
-                    alert("Failed to load PDF: " + err.message);
-                });
-                }
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'ArrowRight') document.getElementById('nextPage').click();
+                            if (e.key === 'ArrowLeft') document.getElementById('prevPage').click();
+                        });
 
-                document.getElementById('prevPage').addEventListener('click', () => {
-                if (pageNum > 1) {
-                    pageNum--;
-                    renderPage(pageNum);
-                }
-                });
+                        canvas.addEventListener('click', (e) => {
+                            const rect = canvas.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            // Use canvas.style.width for correct click region
+                            const displayWidth = canvas.offsetWidth;
+                            const clickX = e.clientX - rect.left;
+                            if (clickX < displayWidth / 2 && pageNum > 1) {
+                                pageNum--;
+                                renderPage(pageNum);
+                            } else if (clickX >= displayWidth / 2 && pageNum < pdfDoc.numPages) {
+                                pageNum++;
+                                renderPage(pageNum);
+                            }
+                        });
 
-                document.getElementById('nextPage').addEventListener('click', () => {
-                if (pageNum < pdfDoc.numPages) {
-                    pageNum++;
-                    renderPage(pageNum);
-                }
-                });
+                        pdfjsLib.getDocument(url).promise.then((pdf) => {
+                            pdfDoc = pdf;
+                            document.getElementById('pageCount').textContent = pdf.numPages;
 
-                // Keyboard navigation
-                document.addEventListener('keydown', e => {
-                if (e.key === 'ArrowRight') document.getElementById('nextPage').click();
-                if (e.key === 'ArrowLeft') document.getElementById('prevPage').click();
-                });
-
-                window.addEventListener('resize', () => renderPage(pageNum)); // Re-render on resize
-                loadPDF();
-
-                document.getElementById('zoomIn').addEventListener('click', () => {
-                zoomLevel *= 1.2;
-                renderPage(pageNum);
-            });
-
-                    document.getElementById('zoomOut').addEventListener('click', () => {
-                    zoomLevel /= 1.2;
-                    renderPage(pageNum);
-                    });
-            </script>
-        </body>
-    </html>
+                            // Restore last page if available
+                            const savedPage = parseInt(localStorage.getItem(`lastPage_${url}`), 10);
+                            pageNum = savedPage && savedPage >= 1 && savedPage <= pdf.numPages ? savedPage : 1;
+                            renderPage(pageNum);
+                        });
+                    </script>
+                </body>
+            </html>
