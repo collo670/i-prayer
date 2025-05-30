@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lent </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    body{
+        background-color: #1f2937;
+        
+    }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+      display: block;
+      margin: 0 auto;
+    }
+    h1{
+        color: white;
+        font-size: xx-large;
+    }
+  </style>
+</head>
+    <body data-src="assets/pdfs/easter 1.pdf">
+        <nav class="fixed top-0 left-0 right-0 bg-[#202847] shadow z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="text-lg font-semibold text-white">EASTER WEEK 1</div>
+                <div class="space-x-4">
+                <a href="#" class="text-gray-300 hover:text-white">Home</a>
+                <a href="#" class="text-gray-300 hover:text-white">Week 2</a>
+              <a href="#" class="text-gray-300 hover:text-white"></a>
+            </div>
+        </div>
+        </nav>
+
+    <br><br><br>
+            <div class="mb-4 text-center">
+             <div class="inline-flex flex-wrap justify-center gap-2">
+                <button id="prevPage" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Previous</button>
+                <button id="nextPage" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Next</button>
+                <button id="zoomIn" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Zoom In</button>
+                <button id="zoomOut" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Zoom Out</button>
+            </div>
+            </div>
+
+            <canvas id="pdfCanvas" class="border rounded shadow w-full max-w-4xl"></canvas>
+
+            <div class="text-sm mt-2 text-center">
+                Page <span id="pageNum">1</span> of <span id="pageCount">--</span>
+            </div>
+
+    <script>
+                const url = document.body.getAttribute('data-src');
+                const canvas = document.getElementById('pdfCanvas');
+                const ctx = canvas.getContext('2d');
+                let pdfDoc = null;
+                let pageNum = 1;
+                let zoomLevel = 1; // 1 = 100%, 2 = 200%, etc.
+
+
+            function renderPage(num) {
+                pdfDoc.getPage(num).then(page => {
+                const containerWidth = canvas.parentElement.clientWidth;
+                const baseScale = containerWidth / page.getViewport({ scale: 1 }).width;
+                const effectiveScale = baseScale * zoomLevel;
+
+                const viewport = page.getViewport({ scale: effectiveScale });
+                const outputScale = window.devicePixelRatio || 1;
+
+                canvas.width = viewport.width * outputScale;
+                canvas.height = viewport.height * outputScale;
+                canvas.style.width = `${viewport.width}px`;
+                canvas.style.height = `${viewport.height}px`;
+
+                const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+                page.render({
+                canvasContext: ctx,
+                viewport,
+                transform
+                });
+
+                document.getElementById('pageNum').textContent = num;
+            });
+            }
+
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+
+                if (x < canvas.width / 2) {
+                    // Left half = previous page
+                    if (pageNum > 1) {
+                    pageNum--;
+                    renderPage(pageNum);
+                    }
+                } else {
+                    // Right half = next page
+                    if (pageNum < pdfDoc.numPages) {
+                    pageNum++;
+                    renderPage(pageNum);
+                    }
+                }
+                });
+
+                function loadPDF() {
+                pdfjsLib.getDocument(url).promise.then(pdf => {
+                    pdfDoc = pdf;
+                    document.getElementById('pageCount').textContent = pdf.numPages;
+                    renderPage(pageNum);
+                }).catch(err => {
+                    alert("Failed to load PDF: " + err.message);
+                });
+                }
+
+                document.getElementById('prevPage').addEventListener('click', () => {
+                if (pageNum > 1) {
+                    pageNum--;
+                    renderPage(pageNum);
+                }
+                });
+
+                document.getElementById('nextPage').addEventListener('click', () => {
+                if (pageNum < pdfDoc.numPages) {
+                    pageNum++;
+                    renderPage(pageNum);
+                }
+                });
+
+                // Keyboard navigation
+                document.addEventListener('keydown', e => {
+                if (e.key === 'ArrowRight') document.getElementById('nextPage').click();
+                if (e.key === 'ArrowLeft') document.getElementById('prevPage').click();
+                });
+
+                window.addEventListener('resize', () => renderPage(pageNum)); // Re-render on resize
+                loadPDF();
+
+                document.getElementById('zoomIn').addEventListener('click', () => {
+                zoomLevel *= 1.2;
+                renderPage(pageNum);
+            });
+
+                    document.getElementById('zoomOut').addEventListener('click', () => {
+                    zoomLevel /= 1.2;
+                    renderPage(pageNum);
+                    });
+            </script>
+        </body>
+    </html>
