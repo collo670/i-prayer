@@ -214,33 +214,33 @@
             z-index: 2;
         }
         body.dark-mode .vintage-background {
-    background: rgba(30, 30, 30, 0.95);
-    color: #e0e0e0;
-}
-body.dark-mode .vintage-background::before {
-    background: rgba(30, 30, 30, 0.85);
-}
-body.dark-mode .vintage-background h1,
-body.dark-mode .vintage-background h2,
-body.dark-mode .vintage-background h3,
-body.dark-mode .vintage-background p,
-body.dark-mode .vintage-background span {
-    color: #e0e0e0 !important;
-}
-body.light-mode .vintage-background {
-    background: rgba(255,255,255,0.95);
-    color: #222;
-}
-body.light-mode .vintage-background::before {
-    background: rgba(255,255,255,0.85);
-}
-body.light-mode .vintage-background h1,
-body.light-mode .vintage-background h2,
-body.light-mode .vintage-background h3,
-body.light-mode .vintage-background p,
-body.light-mode .vintage-background span {
-    color: #222 !important;
-}
+            background: rgba(30, 30, 30, 0.95);
+            color: #e0e0e0;
+        }
+        body.dark-mode .vintage-background::before {
+            background: rgba(30, 30, 30, 0.85);
+        }
+            body.dark-mode .vintage-background h1,
+            body.dark-mode .vintage-background h2,
+            body.dark-mode .vintage-background h3,
+            body.dark-mode .vintage-background p,
+            body.dark-mode .vintage-background span {
+            color: #e0e0e0 !important;
+        }
+        body.light-mode .vintage-background {
+            background: rgba(30, 30, 30, 0.85);
+            color: #222;
+        }
+            body.light-mode .vintage-background::before {
+            background: rgba(255,255,255,0.85);
+        }
+            body.light-mode .vintage-background h1,
+            body.light-mode .vintage-background h2,
+            body.light-mode .vintage-background h3,
+            body.light-mode .vintage-background p,
+            body.light-mode .vintage-background span {
+            color: #222 !important;
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -260,12 +260,14 @@ body.light-mode .vintage-background span {
             <div></div>
         </div>
 
-        <div class="max-w-2xl mx-auto p-6 vintage-background rounded-lg shadow-md">
-        <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Catholic Liturgical Calendar - Today</h1>
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+             <div class="icon-bg p-3 rounded-full mb-3">
+        <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Liturgical Calendar - Today</h1>
         <div id="current-day" class="current-day bg-white p-6 rounded-lg shadow-md text-center bg-opacity-90">
             <!-- Current day content will be inserted here -->
         </div>
     </div>
+    <br><br>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <a href="zaburi.html" class="card p-6 rounded-xl flex flex-col items-center text-center no-underline text-current">
