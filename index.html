@@ -183,16 +183,16 @@
                 }
             }
             /* Custom styles for liturgical colors */
-        .advent { color: #800080; font-weight: bold; }
-        .christmas { color: #ffd700; background-color: #4a4a4a; padding: 2px 5px; border-radius: 3px; }
-        .lent { color: #800080; font-weight: bold; }
-        .easter { color: #ffffff; background-color: #c8102e; padding: 2px 5px; border-radius: 3px; }
-        .ordinary { color: #2c6e49; }
-        .solemnity { font-weight: bold; color: #c8102e; }
-        .feast { font-style: italic; color: #4a4a4a; }
-        .memorial { color: #4a4a4a; }
-        /* Background image with semi-transparent overlay for readability */
-        .vintage-background {
+            .advent { color: #800080; font-weight: bold; }
+            .christmas { color: #ffd700; background-color: #4a4a4a; padding: 2px 5px; border-radius: 3px; }
+            .lent { color: #800080; font-weight: bold; }
+            .easter { color: #ffffff; background-color: #c8102e; padding: 2px 5px; border-radius: 3px; }
+            .ordinary { color: #2c6e49; }
+            .solemnity { font-weight: bold; color: #c8102e; }
+            .feast { font-style: italic; color: #4a4a4a; }
+            .memorial { color: #4a4a4a; }
+            /* Background image with semi-transparent overlay for readability */
+            .vintage-background {
             background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
             background-position: center;
@@ -213,6 +213,34 @@
             position: relative;
             z-index: 2;
         }
+        body.dark-mode .vintage-background {
+    background: rgba(30, 30, 30, 0.95);
+    color: #e0e0e0;
+}
+body.dark-mode .vintage-background::before {
+    background: rgba(30, 30, 30, 0.85);
+}
+body.dark-mode .vintage-background h1,
+body.dark-mode .vintage-background h2,
+body.dark-mode .vintage-background h3,
+body.dark-mode .vintage-background p,
+body.dark-mode .vintage-background span {
+    color: #e0e0e0 !important;
+}
+body.light-mode .vintage-background {
+    background: rgba(255,255,255,0.95);
+    color: #222;
+}
+body.light-mode .vintage-background::before {
+    background: rgba(255,255,255,0.85);
+}
+body.light-mode .vintage-background h1,
+body.light-mode .vintage-background h2,
+body.light-mode .vintage-background h3,
+body.light-mode .vintage-background p,
+body.light-mode .vintage-background span {
+    color: #222 !important;
+}
     </style>
 </head>
 <body class="dark-mode">
