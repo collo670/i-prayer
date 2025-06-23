@@ -253,7 +253,7 @@
     </div>
 
     <button id="darkModeToggle" class="dark-mode-toggle fixed top-4 right-4 z-20">Light Mode</button>
-
+<br>
     <!-- Centered liturgical calendar card below icon container -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 justify-center">
         <div class="flex justify-center w-full">
@@ -263,20 +263,6 @@
         </div>
     </div>
 
-    <div class="container mx-auto px-4 py-8 pb-20">
-        <div class="flex justify-between items-center mb-6">
-            <div></div>
-        </div>
-
-         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 justify-center">
-    <div class="flex justify-center w-full">
-        <div id="current-day" class="card p-6 rounded-xl flex flex-col items-center text-center shadow-md w-full vintage-background" style="max-width: 500px;">
-            <!-- Current day content will be inserted here -->
-        </div>
-    </div>
-</div>
-    </div>
     <br>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -459,12 +445,14 @@
                 seasonClass = "advent";
             }
             // Christmas: Dec 25 to Baptism of the Lord (Jan 12, 2026)
-            else if (currentDate >= new Date(2025, 11, 25) || 
-                     (currentDate.getFullYear() === 2026 && currentDate <= new Date(2026, 0, 12))) {
+            else if (
+                (currentDate >= new Date(2025, 11, 25) && currentDate <= new Date(2025, 11, 31)) ||
+                (currentDate.getFullYear() === 2026 && currentDate <= new Date(2026, 0, 12))
+            ) {
                 season = "Christmas";
                 seasonClass = "christmas";
             }
-            // Lent: Ash Wednesday to Holy Thursday (April 17, 2025)
+            // Lent: Ash Wednesday to Holy Thursday (April 16, 2025)
             else if (currentDate >= ashWednesday && currentDate < new Date(2025, 3, 17)) {
                 season = "Lent";
                 seasonClass = "lent";
@@ -476,8 +464,8 @@
             }
 
             // Check for feasts
-            const feasts = allFeasts.filter(feast => 
-                feast.date.getDate() === currentDate.getDate() && 
+            const feasts = allFeasts.filter(feast =>
+                feast.date.getDate() === currentDate.getDate() &&
                 feast.date.getMonth() === currentDate.getMonth() &&
                 feast.date.getFullYear() === currentDate.getFullYear()
             );
