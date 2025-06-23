@@ -255,9 +255,11 @@
     <button id="darkModeToggle" class="dark-mode-toggle fixed top-4 right-4 z-20">Light Mode</button>
 
     <!-- Centered liturgical calendar card below icon container -->
-    <div class="flex justify-center mt-6 mb-8">
-        <div id="current-day" class="card p-6 rounded-xl flex flex-col items-center text-center shadow-md vintage-background" style="max-width: 500px; width: 100%;">
-            <!-- Current day content will be inserted here -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 justify-center">
+        <div class="flex justify-center w-full">
+            <div id="current-day" class="card p-6 rounded-xl flex flex-col items-center text-center shadow-md w-full vintage-background" style="max-width: 500px;">
+                <!-- Current day content will be inserted here -->
+            </div>
         </div>
     </div>
 
