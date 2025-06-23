@@ -43,6 +43,10 @@
 <body class="bg-gray-100 text-gray-800 font-sans">
     <div class="max-w-6xl mx-auto p-6">
         <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Kalenda ya Liturgia ya Kikatoliki 2025 - Catholic Liturgical Calendar 2025</h1>
+        <div class="flex justify-center mb-4">
+            <button id="sw-btn" class="px-4 py-2 bg-yellow-400 text-black font-bold rounded-l focus:outline-none">Swahili</button>
+            <button id="en-btn" class="px-4 py-2 bg-gray-300 text-black font-bold rounded-r focus:outline-none">English</button>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="calendar"></div>
     </div>
 
@@ -124,72 +128,94 @@
             ordinary: { sw: "Wakati wa Kawaida", en: "Ordinary Time" },
         };
 
-        // Generate liturgical calendar
-        const calendarDiv = document.getElementById("calendar");
+        let currentLang = 'sw'; // default language
 
-        months.forEach((month, monthIndex) => {
-            const monthDiv = document.createElement("div");
-            monthDiv.className = "bg-white p-6 rounded-lg shadow-md";
-            monthDiv.innerHTML = `<h3 class="text-xl font-semibold text-gray-800 mb-4">${month.sw} / ${month.en} 2025</h3>`;
+        function renderCalendar(lang) {
+            const calendarDiv = document.getElementById("calendar");
+            calendarDiv.innerHTML = "";
 
-            // Get number of days in the month
-            const daysInMonth = new Date(2025, monthIndex + 1, 0).getDate();
+            months.forEach((month, monthIndex) => {
+                const monthDiv = document.createElement("div");
+                monthDiv.className = "bg-white p-6 rounded-lg shadow-md";
+                monthDiv.innerHTML = `<h3 class="text-xl font-semibold text-gray-800 mb-4">${month[lang]} 2025</h3>`;
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const currentDate = new Date(2025, monthIndex, day);
-                const dayDiv = document.createElement("div");
-                dayDiv.className = "p-2 border-b border-gray-200 vintage-background";
+                // Get number of days in the month
+                const daysInMonth = new Date(2025, monthIndex + 1, 0).getDate();
 
-                // Determine liturgical season
-                let seasonKey = "ordinary";
-                let seasonClass = "ordinary";
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const currentDate = new Date(2025, monthIndex, day);
+                    const dayDiv = document.createElement("div");
+                    dayDiv.className = "p-2 border-b border-gray-200 vintage-background";
 
-                // Advent: First Sunday of Advent (Nov 30, 2025) to Dec 24
-                if (currentDate >= firstAdvent && currentDate < new Date(2025, 11, 25)) {
-                    seasonKey = "advent";
-                    seasonClass = "advent";
+                    // Determine liturgical season
+                    let seasonKey = "ordinary";
+                    let seasonClass = "ordinary";
+
+                    if (currentDate >= firstAdvent && currentDate < new Date(2025, 11, 25)) {
+                        seasonKey = "advent";
+                        seasonClass = "advent";
+                    }
+                    else if (currentDate >= new Date(2025, 11, 25) || 
+                            (currentDate.getFullYear() === 2026 && currentDate <= new Date(2026, 0, 12))) {
+                        seasonKey = "christmas";
+                        seasonClass = "christmas";
+                    }
+                    else if (currentDate >= ashWednesday && currentDate < new Date(2025, 3, 17)) {
+                        seasonKey = "lent";
+                        seasonClass = "lent";
+                    }
+                    else if (currentDate >= easterSunday && currentDate <= pentecost) {
+                        seasonKey = "easter";
+                        seasonClass = "easter";
+                    }
+
+                    // Check for feasts
+                    const feasts = allFeasts.filter(feast => 
+                        feast.date.getDate() === day && 
+                        feast.date.getMonth() === monthIndex &&
+                        feast.date.getFullYear() === 2025
+                    );
+
+                    let feastText = "";
+                    if (feasts.length > 0) {
+                        feastText = `<strong class='text-gray-800'>${lang === 'sw' ? 'Sikukuu' : 'Feasts'}:</strong><br>`;
+                        feasts.forEach(feast => {
+                            feastText += `<span class="${feast.type}">${feast[lang === 'sw' ? 'nameSw' : 'nameEn']}</span><br>`;
+                        });
+                    }
+
+                    dayDiv.innerHTML = `
+                        <p class="text-gray-800">${day} ${month[lang]}: 
+                        <span class="${seasonClass}">${seasons[seasonKey][lang]}</span></p>
+                        ${feastText}
+                    `;
+                    monthDiv.appendChild(dayDiv);
                 }
-                // Christmas: Dec 25 to Baptism of the Lord (Jan 12, 2026)
-                else if (currentDate >= new Date(2025, 11, 25) || 
-                         (currentDate.getFullYear() === 2026 && currentDate <= new Date(2026, 0, 12))) {
-                    seasonKey = "christmas";
-                    seasonClass = "christmas";
-                }
-                // Lent: Ash Wednesday to Holy Thursday (April 17, 2025)
-                else if (currentDate >= ashWednesday && currentDate < new Date(2025, 3, 17)) {
-                    seasonKey = "lent";
-                    seasonClass = "lent";
-                }
-                // Easter: Easter Sunday to Pentecost
-                else if (currentDate >= easterSunday && currentDate <= pentecost) {
-                    seasonKey = "easter";
-                    seasonClass = "easter";
-                }
 
-                // Check for feasts
-                const feasts = allFeasts.filter(feast => 
-                    feast.date.getDate() === day && 
-                    feast.date.getMonth() === monthIndex &&
-                    feast.date.getFullYear() === 2025
-                );
+                calendarDiv.appendChild(monthDiv);
+            });
+        }
 
-                let feastText = "";
-                if (feasts.length > 0) {
-                    feastText = "<strong class='text-gray-800'>Sikukuu / Feasts:</strong><br>";
-                    feasts.forEach(feast => {
-                        feastText += `<span class="${feast.type}">${feast.nameSw} / ${feast.nameEn}</span><br>`;
-                    });
-                }
+        // Initial render
+        renderCalendar(currentLang);
 
-                dayDiv.innerHTML = `
-                    <p class="text-gray-800">${day} ${month.sw} / ${month.en}: 
-                    <span class="${seasonClass}">${seasons[seasonKey].sw} / ${seasons[seasonKey].en}</span></p>
-                    ${feastText}
-                `;
-                monthDiv.appendChild(dayDiv);
-            }
+        // Button event listeners
+        document.getElementById('sw-btn').addEventListener('click', function() {
+            currentLang = 'sw';
+            this.classList.add('bg-yellow-400');
+            this.classList.remove('bg-gray-300');
+            document.getElementById('en-btn').classList.remove('bg-yellow-400');
+            document.getElementById('en-btn').classList.add('bg-gray-300');
+            renderCalendar(currentLang);
+        });
 
-            calendarDiv.appendChild(monthDiv);
+        document.getElementById('en-btn').addEventListener('click', function() {
+            currentLang = 'en';
+            this.classList.add('bg-yellow-400');
+            this.classList.remove('bg-gray-300');
+            document.getElementById('sw-btn').classList.remove('bg-yellow-400');
+            document.getElementById('sw-btn').classList.add('bg-gray-300');
+            renderCalendar(currentLang);
         });
     </script>
 </body>
