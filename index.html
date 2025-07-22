@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -139,8 +139,8 @@
             font-family: 'times new roman';
             font-size: 2.5rem; /* Larger font size */
             font-weight: bold;
-            margin-top: 1rem; /* Space from the top */
-            margin-bottom: 0.1rem; /* Space before the next element */
+            margin-top: 2rem; /* Space from the top */
+            margin-bottom: 1rem; /* Space before the next element */
             padding-top: 20px; /* Adjust for fixed header */
         }
 
@@ -159,7 +159,19 @@
         .container {
             padding-top: 1rem; /* Reduced padding as h1 adds its own */
             padding-left: 1rem;  /* Add this */
-            padding-right: 1rem;
+            padding-right: 1rem; /* Add this */
+        }
+        @media (min-width: 640px) {
+            .container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container {
+                padding-left: 4rem;
+                padding-right: 4rem;
+            }
         }
         .icon-container {
             display: flex;
@@ -278,7 +290,7 @@
 <br>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <a href="zaburi.html" class="card p-6 rounded-xl flex flex-col items-center text-center no-underline text-current">
+            <a id="masifuAsubuhiLink" class="card p-6 rounded-xl flex flex-col items-center text-center no-underline text-current" style="cursor:pointer;">
                 <div class="icon-bg p-3 rounded-full mb-3">
                     <svg class="svg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V6.5A2.5 2.5 0 0 0 17.5 4h-11A2.5 2.5 0 0 0 4 6.5v13z"></path>
@@ -388,6 +400,41 @@
                     setTheme('dark');
                 }
             });
+
+            // Masifu ya Asubuhi dynamic link by day
+            const masifuAsubuhiLink = document.getElementById('masifuAsubuhiLink');
+            if (masifuAsubuhiLink) {
+                masifuAsubuhiLink.addEventListener('click', function() {
+                    const day = new Date().getDay(); // 0=Sunday, 1=Monday, ...
+                    const dayToPrefix = [
+                        'jumapili',   // Sunday
+                        'jumatatu',   // Monday
+                        'jumanne',    // Tuesday
+                        'jumatano',   // Wednesday
+                        'alhamisi',   // Thursday
+                        'ijumaa',     // Friday
+                        'jumamosi'    // Saturday
+                    ];
+                    // Week sequence: 4 -> 1 -> 2 -> 3 -> 4 ...
+                    const weekSequence = [4, 1, 2, 3];
+                    // Reference: today is Tuesday and week 4
+                    const now = new Date();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    // Find the most recent Tuesday (including today if today is Tuesday)
+                    const daysSinceTuesday = (today.getDay() + 6) % 7; // 0 if Tuesday, 1 if Wednesday, ... 6 if Monday
+                    const referenceTuesday = new Date(today);
+                    referenceTuesday.setDate(today.getDate() - daysSinceTuesday);
+                    // This reference Tuesday is week 4
+                    // Calculate number of weeks since reference Tuesday
+                    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+                    const weeksSinceReference = Math.floor((today - referenceTuesday) / msPerWeek);
+                    // Determine current week in sequence
+                    const weekIndex = (0 + weeksSinceReference) % weekSequence.length; // 0 is week 4
+                    const week = weekSequence[weekIndex];
+                    const fileName = `${dayToPrefix[day]}${week}.html`;
+                    window.location.href = fileName;
+                });
+            }
         });
 
         // Easter Sunday 2025: April 20
@@ -526,7 +573,7 @@
           <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 4.557a9.83 9.83 0 0 1-2.828.775 4.932 4.932 0 0 0 2.165-2.724c-.951.564-2.005.974-3.127 1.195a4.916 4.916 0 0 0-8.38 4.482C7.691 8.095 4.066 6.13 1.64 3.161c-.542.929-.856 2.01-.857 3.17 0 2.188 1.115 4.117 2.823 5.254a4.904 4.904 0 0 1-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.936 4.936 0 0 1-2.224.084c.627 1.956 2.444 3.377 4.6 3.417A9.867 9.867 0 0 1 0 21.543a13.94 13.94 0 0 0 7.548 2.209c9.058 0 14.009-7.496 14.009-13.986 0-.21-.005-.423-.015-.633A9.936 9.936 0 0 0 24 4.557z"/></svg>
         </a>
         <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram" style="color: #C13584;">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.647 2.163 15.267 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.241-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.131 4.602.425 3.635 1.392 2.668 2.359 2.374 3.532 2.315 4.809 2.256 6.089 2.243 6.498 2.243 12c0 5.502.013 5.911.072 7.191.059 1.277.353 2.45 1.32 3.417.967.967 2.14 1.261 3.417 1.32 1.28.059 1.689.072 7.191.072s5.911-.013 7.191-.072c1.277-.059 2.45-.353 3.417-1.32.967-.967 1.261-2.14 1.32-3.417.059-1.28.072-1.689.072-7.191s-.013-5.911-.072-7.191c-.059-1.277-.353-2.45-1.32-3.417C21.45.425 20.277.131 19 .072 17.72.013 17.311 0 14.052 0h-4.104zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.647 2.163 15.267 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.241-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.775.131 4.602.425 3.635 1.392 2.668 2.359 2.374 3.532 2.315 4.809 2.256 6.089 2.243 6.498 2.243 12c0 5.502.013 5.911.072 7.191.059 1.277.353 2.45 1.32 3.417.967.967 2.14 1.261 3.417 1.32 1.28.059 1.689.072 7.191.072s5.911-.013 7.191-.072c1.277-.059 2.45-.353 3.417-1.32.967-.967 1.261-2.14 1.32-3.417.059-1.28.072-1.689.072-7.191s-.013-5.911-.07-7.191c-.059-1.277-.353-2.45-1.32-3.417C21.45.425 20.277.131 19 .072 17.72.013 17.311 0 14.052 0h-4.104zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
         </a>
         <a href="https://wa.me/" target="_blank" rel="noopener" aria-label="WhatsApp" style="color: #25D366;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.151-.174.2-.298.3-.497.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.501-.669-.51-.173-.007-.372-.009-.571-.009-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.077 4.366.709.306 1.262.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.288.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.617h-.001a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.999-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.455 4.436-9.89 9.893-9.89 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.896 6.994c-.003 5.456-4.438 9.891-9.893 9.891m8.413-18.304A11.815 11.815 0 0 0 12.05 0C5.495 0 .06 5.435.057 12.086c0 2.13.557 4.21 1.615 6.033L0 24l6.063-1.594a11.876 11.876 0 0 0 5.966 1.523h.005c6.554 0 11.89-5.435 11.893-12.086a11.82 11.82 0 0 0-3.487-8.477"/></svg>
