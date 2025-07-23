@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ordinary</title>
+  <title>kawaida</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
@@ -25,10 +25,10 @@
 <body data-src="PDFS/MwakaSehemu2.pdf">
     <nav class="fixed top-0 left-0 right-0 bg-[#202847] shadow z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="text-lg font-semibold text-white">ORDINARY WEEK 29</div>
+            <div class="text-lg font-semibold text-white">KIPINDI CHA KAWAIDA 11-20</div>
             <div class="space-x-4">
-                <a href="#" class="text-gray-300 hover:text-white">Home</a>
-                <a href="#" class="text-gray-300 hover:text-white">Week 5</a>
+                <a href="index.html" class="text-gray-300 hover:text-white">Home</a>
+                <a href="#" class="text-gray-300 hover:text-white"></a>
                 <a href="#" class="text-gray-300 hover:text-white"></a>
             </div>
         </div>
@@ -44,6 +44,9 @@
         </div>
     </div>
 
+    <div class="text-center text-yellow-200 text-sm mb-2">
+        ikiwa maneno hayaonekani vizuri, bofya zoom in/zoom out au <span class="italic">refresh</span> ukurasa out ili kupata usomaji mzuri
+    </div>
     <canvas id="pdfCanvas" class="border rounded shadow w-full max-w-4xl"></canvas>
 
     <div class="text-sm mt-2 text-center">
@@ -55,16 +58,26 @@
 
         let pdfDoc = null;
         let pageNum = 1;
-        let currentScale = 1.5;
+        let currentScale = 2.5;
 
         const canvas = document.getElementById('pdfCanvas');
         const ctx = canvas.getContext('2d');
 
         function renderPage(num) {
             pdfDoc.getPage(num).then((page) => {
-                const viewport = page.getViewport({ scale: currentScale });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                // Calculate scale to fit screen width
+                const containerWidth = Math.min(window.innerWidth, 1024); // 1024px max for large screens
+                const unscaledViewport = page.getViewport({ scale: 1 });
+                let fitScale = containerWidth / unscaledViewport.width;
+                // Use the larger of fitScale or currentScale (for desktop zoom), but on mobile, fit to width
+                let scale = window.innerWidth < 640 ? fitScale : currentScale;
+                const viewport = page.getViewport({ scale });
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = viewport.width * dpr;
+                canvas.height = viewport.height * dpr;
+                canvas.style.width = viewport.width + 'px';
+                canvas.style.height = viewport.height + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
                 page.render({ canvasContext: ctx, viewport });
                 document.getElementById('pageNum').textContent = num;

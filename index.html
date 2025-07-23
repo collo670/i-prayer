@@ -298,6 +298,7 @@
                 </div>
                 <p class="font-semibold text-lg">Masifu ya Asubuhi</p>
                 <p class="text-sm text-gray-400">zaburi za siku</p>
+                <div id="current-week" style="font-size:1rem;color:#ffc107;font-weight:bold;margin-top:0.5rem;"></div>
             </a>
 
             <a href="majira.html" class="card p-6 rounded-xl flex flex-col items-center text-center no-underline text-current">
@@ -308,6 +309,7 @@
                 </div>
                 <p class="font-semibold text-lg">Ofisi ya Masomo</p>
                 <p class="text-sm text-gray-400"></p>
+                <div id="masomo-week" style="font-size:1rem;color:#ffc107;font-weight:bold;margin-top:0.5rem;"></div>
             </a>
         </div>
 
@@ -337,11 +339,11 @@
                     </svg>
                     Rozari Takatifu
                 </a>
-                <a href="" class="grid-link-item">
+                <a href="amefufuka.html" class="grid-link-item">
                     <svg class="svg-icon inline-block mr-1" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 4v7m0-7h18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2v-7m0 0H1"></path><path d="M10 10v4"></path><path d="M14 10v4"></path><path d="M18 10v4"></path>
                     </svg>
-                    Biblia Takatifu
+                    Bibilia Takatifu
                 </a>
                 <a href="Eng-office.html" class="grid-link-item">
                     <svg class="svg-icon inline-block mr-1" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -417,22 +419,101 @@
                     ];
                     // Week sequence: 4 -> 1 -> 2 -> 3 -> 4 ...
                     const weekSequence = [4, 1, 2, 3];
-                    // Reference: today is Tuesday and week 4
+                    // Reference: today is Sunday and week 4
                     const now = new Date();
                     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    // Find the most recent Tuesday (including today if today is Tuesday)
-                    const daysSinceTuesday = (today.getDay() + 6) % 7; // 0 if Tuesday, 1 if Wednesday, ... 6 if Monday
-                    const referenceTuesday = new Date(today);
-                    referenceTuesday.setDate(today.getDate() - daysSinceTuesday);
-                    // This reference Tuesday is week 4
-                    // Calculate number of weeks since reference Tuesday
+                    // Find the most recent Sunday (including today if today is Sunday)
+                    const daysSinceSunday = today.getDay(); // 0 if Sunday, 1 if Monday, ..., 6 if Saturday
+                    const referenceSunday = new Date(today);
+                    referenceSunday.setDate(today.getDate() - daysSinceSunday);
+                    // This reference Sunday is week 4
                     const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-                    const weeksSinceReference = Math.floor((today - referenceTuesday) / msPerWeek);
+                    const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
                     // Determine current week in sequence
                     const weekIndex = (0 + weeksSinceReference) % weekSequence.length; // 0 is week 4
                     const week = weekSequence[weekIndex];
                     const fileName = `${dayToPrefix[day]}${week}.html`;
                     window.location.href = fileName;
+                });
+            }
+
+            // Display current week logic
+            const weekSequence = [4, 1, 2, 3];
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const daysSinceSunday = today.getDay(); // 0 if Sunday, 1 if Monday, ..., 6 if Saturday
+            const referenceSunday = new Date(today);
+            referenceSunday.setDate(today.getDate() - daysSinceSunday);
+            const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+            const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
+            const weekIndex = (0 + weeksSinceReference) % weekSequence.length; // 0 is week 4
+            const week = weekSequence[weekIndex];
+            const currentWeekDiv = document.getElementById('current-week');
+            if (currentWeekDiv) {
+                currentWeekDiv.textContent = `Wiki ya : ${week}`;
+            }
+
+            // Ofisi ya Masomo week logic (16-week cycle, this week is 16)
+            function displayMasomoWeek() {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const daysSinceSunday = today.getDay();
+                const referenceSunday = new Date(today);
+                referenceSunday.setDate(today.getDate() - daysSinceSunday);
+                // This reference Sunday is week 16
+                const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+                const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
+                // Weeks 16 to 34, then Maajilio wiki 1-4, then repeat
+                const masomoWeekDiv = document.getElementById('masomo-week');
+                let weekLabel = '';
+                const totalMasomoWeeks = 34 - 16 + 1; // 19 weeks (16 to 34 inclusive)
+                const totalMaajilioWeeks = 4;
+                const cycleLength = totalMasomoWeeks + totalMaajilioWeeks; // 23 weeks per cycle
+                const cycleWeek = weeksSinceReference % cycleLength;
+                if (cycleWeek < totalMasomoWeeks) {
+                    // Weeks 16 to 34
+                    const week = 16 + cycleWeek;
+                    weekLabel = `Wiki ya : ${week}`;
+                } else {
+                    // Maajilio wiki 1-4
+                    const maajilioWeek = (cycleWeek - totalMasomoWeeks) + 1;
+                    weekLabel = `Maajilio wiki : ${maajilioWeek}`;
+                }
+                if (masomoWeekDiv) {
+                    masomoWeekDiv.textContent = weekLabel;
+                }
+            }
+            displayMasomoWeek();
+
+            // Make Ofisi ya Masomo card open mwaka2.html or mwaka3.html depending on the week
+            const masomoCard = document.querySelector('a[href="majira.html"]');
+            if (masomoCard) {
+                masomoCard.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Use the same week logic as displayMasomoWeek
+                    const now = new Date();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    const daysSinceSunday = today.getDay();
+                    const referenceSunday = new Date(today);
+                    referenceSunday.setDate(today.getDate() - daysSinceSunday);
+                    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+                    const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
+                    const totalMasomoWeeks = 34 - 16 + 1; // 19 weeks (16 to 34 inclusive)
+                    const totalMaajilioWeeks = 4;
+                    const cycleLength = totalMasomoWeeks + totalMaajilioWeeks; // 23 weeks per cycle
+                    const cycleWeek = weeksSinceReference % cycleLength;
+                    let week;
+                    if (cycleWeek < totalMasomoWeeks) {
+                        week = 16 + cycleWeek;
+                    } else {
+                        // For Maajilio, treat as after week 34
+                        week = 35; // Any value > 20 will open mwaka3.html
+                    }
+                    if (week >= 21) {
+                        window.location.href = 'mwaka3.html';
+                    } else {
+                        window.location.href = 'mwaka2.html';
+                    }
                 });
             }
         });
@@ -495,13 +576,19 @@
             const currentDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Normalize to midnight
             const currentDayDiv = document.getElementById("current-day");
 
+            // Swahili names for days and months
+            const swahiliDays = ["Jumapili", "Jumatatu", "Jumanne", "Jumatano", "Alhamisi", "Ijumaa", "Jumamosi"];
+            const swahiliMonths = [
+                "Januari", "Februari", "Machi", "Aprili", "Mei", "Juni", "Julai", "Agosti", "Septemba", "Oktoba", "Novemba", "Desemba"
+            ];
+
             // Determine liturgical season
-            let season = "Ordinary Time";
+            let season = "Kipindi cha Kawaida";
             let seasonClass = "ordinary";
 
             // Advent: First Sunday of Advent (Nov 30, 2025) to Dec 24
             if (currentDate >= firstAdvent && currentDate < new Date(2025, 11, 25)) {
-                season = "Advent";
+                season = "Majilio";
                 seasonClass = "advent";
             }
             // Christmas: Dec 25 to Baptism of the Lord (Jan 12, 2026)
@@ -509,42 +596,31 @@
                 (currentDate >= new Date(2025, 11, 25) && currentDate <= new Date(2025, 11, 31)) ||
                 (currentDate.getFullYear() === 2026 && currentDate <= new Date(2026, 0, 12))
             ) {
-                season = "Christmas";
+                season = "Krismasi";
                 seasonClass = "christmas";
             }
             // Lent: Ash Wednesday to Holy Thursday (April 16, 2025)
             else if (currentDate >= ashWednesday && currentDate < new Date(2025, 3, 17)) {
-                season = "Lent";
+                season = "Kwaresima";
                 seasonClass = "lent";
             }
             // Easter: Easter Sunday to Pentecost
             else if (currentDate >= easterSunday && currentDate <= pentecost) {
-                season = "Easter";
+                season = "Pasaka";
                 seasonClass = "easter";
             }
 
-            // Check for feasts
-            const feasts = allFeasts.filter(feast =>
-                feast.date.getDate() === currentDate.getDate() &&
-                feast.date.getMonth() === currentDate.getMonth() &&
-                feast.date.getFullYear() === currentDate.getFullYear()
-            );
+            // Swahili date string
+            const weekday = swahiliDays[currentDate.getDay()];
+            const month = swahiliMonths[currentDate.getMonth()];
+            const day = currentDate.getDate();
+            const year = currentDate.getFullYear();
+            const swahiliDate = `${weekday}, ${day} ${month} ${year}`;
 
-            let feastText = "";
-            if (feasts.length > 0) {
-                feastText = "<h3 class='text-xl font-semibold text-gray-800 mb-2'>Feasts/Solemnities</h3>";
-                feasts.forEach(feast => {
-                    feastText += `<span class="${feast.type}">${feast.name}</span><br>`;
-                });
-            } else {
-                feastText = "<p class='text-gray-600'>No special feasts or solemnities today.</p>";
-            }
-
-            // Display the current day's information
+            // Display the current day's information in Swahili
             currentDayDiv.innerHTML = `
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Today: ${currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</h2>
-                <p class="text-lg"><strong>Season:</strong> <span class="${seasonClass}">${season}</span></p>
-                ${feastText}
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Leo: ${swahiliDate}</h2>
+                <p class="text-lg"><strong>Kipindi:</strong> <span class="${seasonClass}">${season}</span></p>
             `;
         }
 
@@ -580,5 +656,6 @@
         </a>
       </div>
     </footer>
+    <div style="text-align:center;color:#aaa;font-size:0.95rem;margin-bottom:1rem;">&copy; ipray 2025</div>
 </body>
 </html>
