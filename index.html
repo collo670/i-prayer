@@ -7,7 +7,21 @@
      <link href="./dist/output.css" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffc107">
-    <style>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ipray">
+    <link rel="apple-touch-icon" href="/i-prayer/assets/images/bikira M.png">
+    <!-- Apple Touch Icon (for iOS) -->
+    <link rel="apple-touch-icon" href="/i-prayer/assets/images/bikira M.png">
+
+    <!-- Safari Pinned Tab Icon -->
+    <link rel="mask-icon" href="/i-prayer/assets/icons/safari-pinned-tab.svg" color="#ffc107">
+
+    <!-- Status Bar Style (iOS) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+            <style>
         /* Custom styles for dark mode and font */
         body {
             font-family: 'Inter', sans-serif;
@@ -267,6 +281,37 @@
             body.light-mode .vintage-background span {
             color: #222 !important;
         }
+
+        /* Install button styles */
+        #installPwaBtn {
+            position: fixed;
+            top: 4rem;
+            left: 1rem;
+            z-index: 20;
+            display: none;
+            background-color: #333;
+            color: #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            border: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        #installPwaBtn:hover {
+            background-color: #555;
+        }
+
+        body.light-mode #installPwaBtn {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        body.light-mode #installPwaBtn:hover {
+            background-color: #aaa;
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -291,9 +336,7 @@
          border:none;
          transition:background-color 0.3s ease, color 0.3s ease;
          box-shadow:0 2px 8px rgba(0,0,0,0.2);"
->
-  Install ipray
-</button>
+    >Install ipray</button>
 <br>
 <!-- Centered liturgical calendar card below icon container -->
 <div class="container">
@@ -382,8 +425,14 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('sw.js');
-        }
+  navigator.serviceWorker.register('/i-prayer/sw.js', { 
+    scope: '/i-prayer/'  // Match subdirectory
+  }).then(reg => {
+    console.log('Service worker registered:', reg);
+  }).catch(err => {
+    console.error('SW registration failed:', err);
+  });
+}
         document.addEventListener('DOMContentLoaded', () => {
             const body = document.body;
             const darkModeToggle = document.getElementById('darkModeToggle');
@@ -534,26 +583,105 @@
                     }
                 });
             }
-
-            // Install prompt logic
-            let deferredPrompt;
-            const installBtn = document.getElementById('installPwaBtn');
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                installBtn.style.display = 'block'; // Force show for testing
-            });
-
-            installBtn.addEventListener('click', async () => {
-                installBtn.style.display = 'none';
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    await deferredPrompt.userChoice;
-                    deferredPrompt = null;
-                }
-            });
         });
+
+           // Install prompt logic
+        let deferredPrompt;
+        const installBtn = document.getElementById('installPwaBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install button
+            installBtn.style.display = 'block';
+            
+            // Optionally, show a toast notification
+            showInstallToast();
+        });
+
+        // Show a toast notification about PWA installation
+        function showInstallToast() {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = '#333';
+            toast.style.color = '#fff';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '8px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.style.zIndex = '1000';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '12px';
+            toast.innerHTML = `
+                <span>Install ipray for a better experience</span>
+                <button id="toastInstallBtn" style="background:#ffc107;color:#000;border:none;padding:6px 12px;border-radius:4px;font-weight:bold;">
+                    Install
+                </button>
+            `;
+            document.body.appendChild(toast);
+            
+            // Add click handler for the toast button
+            document.getElementById('toastInstallBtn').addEventListener('click', () => {
+                installPWA();
+                toast.remove();
+            });
+            
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 10000);
+        }
+
+        // Handle install button click
+        installBtn.addEventListener('click', installPWA);
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    installBtn.style.display = 'none';
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+            }
+        }
+
+        // Track successful installation
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            installBtn.style.display = 'none';
+            
+            // You could show a thank you message or redirect to a welcome page
+            showThankYouMessage();
+        });
+
+        function showThankYouMessage() {
+            const message = document.createElement('div');
+            message.style.position = 'fixed';
+            message.style.bottom = '20px';
+            message.style.left = '50%';
+            message.style.transform = 'translateX(-50%)';
+            message.style.backgroundColor = '#ffc107';
+            message.style.color = '#000';
+            message.style.padding = '12px 24px';
+            message.style.borderRadius = '8px';
+            message.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            message.style.zIndex = '1000';
+            message.textContent = 'Thank you for installing ipray!';
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
 
         // Easter Sunday 2025: April 20
         const easterSunday = new Date(2025, 3, 20); // Months are 0-based in JS
