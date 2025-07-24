@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ipray</title>
      <link href="./dist/output.css" rel="stylesheet">
-    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffc107">
     <style>
         /* Custom styles for dark mode and font */
         body {
@@ -279,6 +280,20 @@
     </div>
 
     <button id="darkModeToggle" class="dark-mode-toggle fixed top-4 right-4 z-20" aria-label="Toggle dark or light mode" style="position:fixed;top:1rem;right:1rem;z-index:20;">Light Mode</button>
+<button id="installPwaBtn"
+  style="position:fixed;top:4rem;left:1rem;z-index:20;display:none;
+         background-color:#333;
+         color:#e0e0e0;
+         padding:8px 12px;
+         border-radius:8px;
+         cursor:pointer;
+         font-size:0.8rem;
+         border:none;
+         transition:background-color 0.3s ease, color 0.3s ease;
+         box-shadow:0 2px 8px rgba(0,0,0,0.2);"
+>
+  Install ipray
+</button>
 <br>
 <!-- Centered liturgical calendar card below icon container -->
 <div class="container">
@@ -366,6 +381,9 @@
 </div>
 
     <script>
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js');
+        }
         document.addEventListener('DOMContentLoaded', () => {
             const body = document.body;
             const darkModeToggle = document.getElementById('darkModeToggle');
@@ -516,6 +534,25 @@
                     }
                 });
             }
+
+            // Install prompt logic
+            let deferredPrompt;
+            const installBtn = document.getElementById('installPwaBtn');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.style.display = 'block'; // Force show for testing
+            });
+
+            installBtn.addEventListener('click', async () => {
+                installBtn.style.display = 'none';
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                }
+            });
         });
 
         // Easter Sunday 2025: April 20
