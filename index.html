@@ -418,17 +418,20 @@
 </div>
 
     <script>
-                    if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/i-prayer/sw.js')
-                .then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        // Register service worker with relative path for GitHub Pages
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    console.log('Service worker registered:', reg);
                 })
-                .catch(function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
+                .catch(err => {
+                    console.error('SW registration failed:', err);
                 });
-            });
-            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
             // Function to set the theme
             function setTheme(mode) {
                 if (mode === 'light') {
