@@ -465,11 +465,11 @@
                 }
             });
 
-            // Masifu ya Asubuhi dynamic link by day
+            // Masifu ya Asubuhi dynamic link by day and week (WEEK 1 starts this week, week changes every Sunday)
             const masifuAsubuhiLink = document.getElementById('masifuAsubuhiLink');
             if (masifuAsubuhiLink) {
                 masifuAsubuhiLink.addEventListener('click', function() {
-                    const day = new Date().getDay(); // 0=Sunday, 1=Monday, ...
+                    const day = new Date().getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
                     const dayToPrefix = [
                         'jumapili',   // Sunday
                         'jumatatu',   // Monday
@@ -479,70 +479,59 @@
                         'ijumaa',     // Friday
                         'jumamosi'    // Saturday
                     ];
-                    // Week sequence: 4 -> 1 -> 2 -> 3 -> 4 ...
-                    const weekSequence = [4, 1, 2, 3];
-                    // Reference: today is Sunday and week 4
+                    // Week sequence: 1 -> 2 -> 3 -> 4 -> 1 ...
+                    const weekSequence = [1, 2, 3, 4];
+                    // Find the most recent Sunday (including today if today is Sunday)
                     const now = new Date();
                     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    // Find the most recent Sunday (including today if today is Sunday)
                     const daysSinceSunday = today.getDay(); // 0 if Sunday, 1 if Monday, ..., 6 if Saturday
+                    // Reference Sunday is the most recent Sunday (this week is week 1)
                     const referenceSunday = new Date(today);
                     referenceSunday.setDate(today.getDate() - daysSinceSunday);
-                    // This reference Sunday is week 4
                     const msPerWeek = 7 * 24 * 60 * 60 * 1000;
                     const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
-                    // Determine current week in sequence
-                    const weekIndex = (0 + weeksSinceReference) % weekSequence.length; // 0 is week 4
+                    const weekIndex = weeksSinceReference % weekSequence.length; // 0 is week 1
                     const week = weekSequence[weekIndex];
                     const fileName = `${dayToPrefix[day]}${week}.html`;
                     window.location.href = fileName;
                 });
             }
 
-            // Display current week logic
-            const weekSequence = [4, 1, 2, 3];
+            // Display current week logic (show "Wiki ya : X")
+            const weekSequence = [1, 2, 3, 4];
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const daysSinceSunday = today.getDay(); // 0 if Sunday, 1 if Monday, ..., 6 if Saturday
+            const daysSinceSunday = today.getDay();
             const referenceSunday = new Date(today);
             referenceSunday.setDate(today.getDate() - daysSinceSunday);
             const msPerWeek = 7 * 24 * 60 * 60 * 1000;
             const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
-            const weekIndex = (0 + weeksSinceReference) % weekSequence.length; // 0 is week 4
+            const weekIndex = weeksSinceReference % weekSequence.length;
             const week = weekSequence[weekIndex];
             const currentWeekDiv = document.getElementById('current-week');
             if (currentWeekDiv) {
                 currentWeekDiv.textContent = `Wiki ya : ${week}`;
             }
 
-            // Ofisi ya Masomo week logic (16-week cycle, this week is 16)
+            // Ofisi ya Masomo week logic: show "Dominika ya 17" on Sunday, "Wiki ya 17" on weekdays
             function displayMasomoWeek() {
                 const now = new Date();
                 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const daysSinceSunday = today.getDay();
+                const daysSinceSunday = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+                // Reference Sunday for week 17 (this week is 17, next Sunday is 18, etc.)
                 const referenceSunday = new Date(today);
                 referenceSunday.setDate(today.getDate() - daysSinceSunday);
-                // This reference Sunday is week 16
                 const msPerWeek = 7 * 24 * 60 * 60 * 1000;
                 const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
-                // Weeks 16 to 34, then Maajilio wiki 1-4, then repeat
+                const baseWeek = 17; // This week is 17
+                const week = baseWeek + weeksSinceReference;
                 const masomoWeekDiv = document.getElementById('masomo-week');
-                let weekLabel = '';
-                const totalMasomoWeeks = 34 - 16 + 1; // 19 weeks (16 to 34 inclusive)
-                const totalMaajilioWeeks = 4;
-                const cycleLength = totalMasomoWeeks + totalMaajilioWeeks; // 23 weeks per cycle
-                const cycleWeek = weeksSinceReference % cycleLength;
-                if (cycleWeek < totalMasomoWeeks) {
-                    // Weeks 16 to 34
-                    const week = 16 + cycleWeek;
-                    weekLabel = `Wiki ya : ${week}`;
-                } else {
-                    // Maajilio wiki 1-4
-                    const maajilioWeek = (cycleWeek - totalMasomoWeeks) + 1;
-                    weekLabel = `Maajilio wiki : ${maajilioWeek}`;
-                }
                 if (masomoWeekDiv) {
-                    masomoWeekDiv.textContent = weekLabel;
+                    if (daysSinceSunday === 0) {
+                        masomoWeekDiv.textContent = `Dominika ya ${week}`;
+                    } else {
+                        masomoWeekDiv.textContent = `Wiki ya ${week}`;
+                    }
                 }
             }
             displayMasomoWeek();
