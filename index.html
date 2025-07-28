@@ -307,6 +307,12 @@
             background-color: #aaa;
         }
     </style>
+    <script>
+      // Redirect to offline.html if not connected to the internet
+      if (!navigator.onLine) {
+        window.location.href = "offline.html";
+      }
+    </script>
 </head>
 <body class="dark-mode">
     <h1 class="ipray-heading">ipray</h1>
