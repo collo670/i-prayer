@@ -192,7 +192,7 @@
                 width: 74px;
                 height: 74px;
                 border-radius: 50%;
-                border: 4px solid #ffc107; /* Yellow border */
+                border: 4px solid #16140fff; /* Yellow border */
                 overflow: hidden;
                 box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             }
@@ -471,76 +471,19 @@
                 }
             });
 
-            // Masifu ya Asubuhi dynamic link by day and week (WEEK 1 starts this week, week changes every Sunday)
-            const masifuAsubuhiLink = document.getElementById('masifuAsubuhiLink');
-            if (masifuAsubuhiLink) {
-                masifuAsubuhiLink.addEventListener('click', function() {
-                    const day = new Date().getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-                    const dayToPrefix = [
-                        'jumapili',   // Sunday
-                        'jumatatu',   // Monday
-                        'jumanne',    // Tuesday
-                        'jumatano',   // Wednesday
-                        'alhamisi',   // Thursday
-                        'ijumaa',     // Friday
-                        'jumamosi'    // Saturday
-                    ];
-                    // Week sequence: 1 -> 2 -> 3 -> 4 -> 1 ...
-                    const weekSequence = [1, 2, 3, 4];
-                    // Find the most recent Sunday (including today if today is Sunday)
-                    const now = new Date();
-                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    const daysSinceSunday = today.getDay(); // 0 if Sunday, 1 if Monday, ..., 6 if Saturday
-                    // Reference Sunday is the most recent Sunday (this week is week 1)
-                    const referenceSunday = new Date(today);
-                    referenceSunday.setDate(today.getDate() - daysSinceSunday);
-                    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-                    const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
-                    const weekIndex = weeksSinceReference % weekSequence.length; // 0 is week 1
-                    const week = weekSequence[weekIndex];
-                    const fileName = `${dayToPrefix[day]}${week}.html`;
-                    window.location.href = fileName;
-                });
-            }
+           // Masifu ya Asubuhi dynamic link: always call week 2
+        const masifuAsubuhiLink = document.getElementById('masifuAsubuhiLink');
+        if (masifuAsubuhiLink) {
+            masifuAsubuhiLink.addEventListener('click', function() {
+                const day = new Date().getDay();
+                const dayToPrefix = ['jumapili', 'jumatatu', 'jumanne', 'jumatano', 'alhamisi', 'ijumaa', 'jumamosi'];
+                const week = 2;
+                const fileName = `${dayToPrefix[day]}${week}.html`;
+                window.location.href = fileName;
+            });
+        }
 
-            // Display current week logic (show "Wiki ya : X")
-            const weekSequence = [1, 2, 3, 4];
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const daysSinceSunday = today.getDay();
-            const referenceSunday = new Date(today);
-            referenceSunday.setDate(today.getDate() - daysSinceSunday);
-            const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-            const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
-            const weekIndex = weeksSinceReference % weekSequence.length;
-            const week = weekSequence[weekIndex];
-            const currentWeekDiv = document.getElementById('current-week');
-            if (currentWeekDiv) {
-                currentWeekDiv.textContent = `Wiki ya : ${week}`;
-            }
-
-            // Ofisi ya Masomo week logic: show "Dominika ya 17" on Sunday, "Wiki ya 17" on weekdays
-            function displayMasomoWeek() {
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const daysSinceSunday = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-                // Reference Sunday for week 17 (this week is 17, next Sunday is 18, etc.)
-                const referenceSunday = new Date(today);
-                referenceSunday.setDate(today.getDate() - daysSinceSunday);
-                const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-                const weeksSinceReference = Math.floor((today - referenceSunday) / msPerWeek);
-                const baseWeek = 17; // This week is 17
-                const week = baseWeek + weeksSinceReference;
-                const masomoWeekDiv = document.getElementById('masomo-week');
-                if (masomoWeekDiv) {
-                    if (daysSinceSunday === 0) {
-                        masomoWeekDiv.textContent = `Dominika ya ${week}`;
-                    } else {
-                        masomoWeekDiv.textContent = `Wiki ya ${week}`;
-                    }
-                }
-            }
-            displayMasomoWeek();
+        
 
             // Make Ofisi ya Masomo card open mwaka2.html or mwaka3.html depending on the week
             const masomoCard = document.querySelector('a[href="majira.html"]');
